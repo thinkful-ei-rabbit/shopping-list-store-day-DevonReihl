@@ -1,3 +1,4 @@
+'use strict';
 const store = {
   items: [
     { id: cuid(), name: 'apples', checked: false },
@@ -5,7 +6,8 @@ const store = {
     { id: cuid(), name: 'milk', checked: true },
     { id: cuid(), name: 'bread', checked: false }
   ],
-  hideCheckedItems: false
+  hideCheckedItems: false,
+  rename: false
 };
 
 const generateItemElement = function (item) {
@@ -27,7 +29,22 @@ const generateItemElement = function (item) {
           <span class='button-label'>delete</span>
         </button>
       </div>
-    </li>`;
+      <div>
+        <input type="checkbox" id="change-checked" class="change-checked js-change-checked" />
+        <label for="filter-checked">Change Item</label>
+      </div>
+    </li>
+    <div class="form-popup" id="myForm">
+    <form action="/action_page.php" class="form-container">
+      <label for="shopping-list-entry">Change Item</label>
+      <input type="text" name="shopping-list-entry" class="js-shopping-list-entry" placeholder="e.g., cabbage">
+      <button type="submit">edit item</button>
+    </form>
+
+    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+  </form>
+</div>
+    `;
 };
 
 const generateShoppingItemsString = function (shoppingList) {
@@ -49,6 +66,10 @@ const render = function () {
   // property of false are included.
   if (store.hideCheckedItems) {
     items = items.filter(item => !item.checked);
+  }
+  
+  if (store.rename){
+    items = items.replace(item => !item.rename);
   }
 
   /**
@@ -145,6 +166,32 @@ const handleToggleFilterClick = function () {
   });
 };
 
+const changeListItem = function (id) {
+    store.rename = !store.rename;
+    
+    //need to call popup form
+    // function openForm() {
+    //   document.getElementById("myForm").style.display = "block";
+    // }
+    
+    // function closeForm() {
+    //   document.getElementById("myForm").style.display = "none";
+    // }
+
+};
+
+const handleChangeItemClicked = function () {
+  $('.js-shopping-list').on('click', '#change-checked', event => {
+    // Get the index of the item in store.items.
+    const id = getItemIdFromElement(event.currentTarget);
+    // change the item.
+    changeListItem(id);
+    // Render the updated shopping list.
+    render();
+  });
+};
+
+
 /**
  * This function will be our callback when the
  * page loads. It is responsible for initially 
@@ -160,6 +207,7 @@ const handleShoppingList = function () {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleToggleFilterClick();
+  handleChangeItemClicked();
 };
 
 // when the page loads, call `handleShoppingList`
